@@ -13,6 +13,7 @@ const message = document.createElement("div");
 const tabs = document.querySelectorAll(".operations__tab");
 const tabsContainer = document.querySelector(".operations__tab-container");
 const tabsContent = document.querySelectorAll(".operations__content");
+const nav = document.querySelector(".nav");
 
 ///////////////////////////////////////
 // Modal window
@@ -65,6 +66,56 @@ tabsContainer.addEventListener("click", function (e) {
     )
     .classList.add("operations__content--active");
 });
+
+// STICKY NAVIGATION version 1 to be updated later because scroll event is not efficent
+// const initialCoords = section1.getBoundingClientRect();
+
+// window.addEventListener("scroll", function () {
+//   if (window.scrollY > initialCoords.top) nav.classList.add("sticky");
+//   else nav.classList.remove("sticky");
+// });
+// sticky navigation version 2 intersection observer api
+// changes from the course, navbar sticks to the top and not the bottom
+const navHeight = nav.getBoundingClientRect().height;
+
+function stickyNav(entries) {
+  const [entry] = entries;
+  console.log(entry);
+
+  if (!entry.isIntersecting) nav.classList.add("sticky");
+  else nav.classList.remove("sticky");
+}
+
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 1,
+  rootMargin: `${navHeight}px`,
+});
+
+headerObserver.observe(header);
+
+// FADING LINK ANIMATION
+//parent container event delegation
+function handleHover(e, opacityVal) {
+  if (e.target.classList.contains("nav__link")) {
+    const link = e.target;
+    const siblings = link.closest(".nav").querySelectorAll(".nav__link");
+    const logo = link.closest(".nav").querySelector("img");
+
+    siblings.forEach((sib) => {
+      if (sib !== link) {
+        sib.style.opacity = this;
+        logo.style.opacity = this;
+      }
+    });
+  }
+}
+
+// magheggio per fare in modo di passare un 'argomento' alla funzione handler che non potrebbe ricevere argomenti, spostando dove punta this utilizzando bind
+// The bind() method creates a new function that, when called, has its this keyword set to the provided value, with a given sequence of arguments preceding any provided when the new function is called.
+nav.addEventListener("mouseover", handleHover.bind(0.5));
+
+nav.addEventListener("mouseout", handleHover.bind(1));
 
 // Smooth scrolling links in the navigation bar
 // event delegation in practice
