@@ -43,6 +43,8 @@ body {
   transition: transform 1s, opacity 1s;
 }
 
+/* CSS PROPERTIES THAT ALLOWS SECTION TO GET INTO VIEW USING INTERSECTION OBSERVER API*/
+
 .section--hidden {
   opacity: 0;
   transform: translateY(8rem);
@@ -410,6 +412,9 @@ h4 {
   position: absolute;
   top: 50%;
   z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   border: none;
   background: rgba(255, 255, 255, 0.7);
@@ -420,6 +425,11 @@ h4 {
   width: 5.5rem;
   font-size: 3.25rem;
   cursor: pointer;
+}
+
+/* mini fix for arrow not being at the center */
+.slider__btn > span {
+  height: 100%;
 }
 
 .slider__btn--left {

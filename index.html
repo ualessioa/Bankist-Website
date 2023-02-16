@@ -12,6 +12,8 @@
     />
     <link rel="stylesheet" href="style.css" />
     <title>Bankist | When Banking meets Minimalist</title>
+    <!-- change to defer to improve performance -->
+    <script defer src="script.js"></script>
   </head>
   <body>
     <header class="header">
@@ -284,12 +286,19 @@
           </div>
         </div>
 
+        <!-- alternative slider content used in developing phase and to show that the logic behind the slider is not binded to the content -->
+
         <!-- <div class="slide"><img src="img/img-1.jpg" alt="Photo 1" /></div>
         <div class="slide"><img src="img/img-2.jpg" alt="Photo 2" /></div>
         <div class="slide"><img src="img/img-3.jpg" alt="Photo 3" /></div>
         <div class="slide"><img src="img/img-4.jpg" alt="Photo 4" /></div> -->
-        <button class="slider__btn slider__btn--left">&larr;</button>
-        <button class="slider__btn slider__btn--right">&rarr;</button>
+
+        <button type="button" class="slider__btn slider__btn--left">
+          <span>&larr;</span>
+        </button>
+        <button type="button" class="slider__btn slider__btn--right">
+          <span>&rarr;</span>
+        </button>
         <div class="dots"></div>
       </div>
     </section>
@@ -358,7 +367,5 @@
       </form>
     </div>
     <div class="overlay hidden"></div>
-
-    <script src="script.js"></script>
   </body>
 </html>

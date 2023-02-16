@@ -14,6 +14,12 @@ const tabs = document.querySelectorAll(".operations__tab");
 const tabsContainer = document.querySelector(".operations__tab-container");
 const tabsContent = document.querySelectorAll(".operations__content");
 const nav = document.querySelector(".nav");
+const sections = document.querySelectorAll(".section");
+const lazyImages = document.querySelectorAll("img[data-src]");
+const slides = document.querySelectorAll(".slide");
+const btnLeft = document.querySelector(".slider__btn--left");
+const btnRight = document.querySelector(".slider__btn--right");
+const dotContainer = document.querySelector(".dots");
 
 ///////////////////////////////////////
 // Modal window
@@ -40,6 +46,140 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "Escape" && !modal.classList.contains("hidden")) {
     closeModal();
   }
+});
+
+// SLIDER
+
+//we use this variable to keep track of the current slide and use the value of the variable in the calculations of the transform so that the slide that interests us has a value of 0
+let currentSlide = 0;
+
+function goToSlide(s) {
+  slides.forEach(
+    (slide, index) =>
+      (slide.style.transform = `translateX(${100 * (index - s)}%)`)
+  );
+}
+
+function nextSlide() {
+  // guarding logic to prevent to slide after the last slide returning to the first one
+  currentSlide < slides.length - 1 ? currentSlide++ : (currentSlide = 0);
+
+  goToSlide(currentSlide);
+  // inserting the call to the dots activating function
+  activateDot(currentSlide);
+}
+
+function prevSlide() {
+  // guarding logic
+  currentSlide === 0 ? (currentSlide = slides.length - 1) : currentSlide--;
+
+  goToSlide(currentSlide);
+  // inserting the call to the dots activating function
+  activateDot(currentSlide);
+}
+
+// next slide
+btnRight.addEventListener("click", nextSlide);
+// previous slide
+btnLeft.addEventListener("click", prevSlide);
+
+// allowing the arrow keys on the keyboard to control the slider
+
+document.addEventListener("keydown", function (e) {
+  if (e.key == "ArrowRight") nextSlide();
+  // same but with short circuiting
+  e.key == "ArrowLeft" && prevSlide();
+});
+
+// creating dots
+function createDots() {
+  // since we are not interested in the slides themselves but only on the index we can use the throwaway notation
+  slides.forEach(function (_, index) {
+    dotContainer.insertAdjacentHTML(
+      "beforeend",
+      `<button type="button" class="dots__dot" data-slide="${index}"></button>`
+    );
+  });
+}
+
+// event delegation to the dots container
+dotContainer.addEventListener("click", function (e) {
+  // guard clause
+  if (!e.target.classList.contains("dots__dot")) return;
+  // we take the value of the slide we are interested in and call the function to show it
+  const { slide } = e.target.dataset;
+  goToSlide(slide);
+});
+
+// function to allow dots to have the active class
+function activateDot(slide) {
+  //selecting all dots and removing the active class from everyone
+  document
+    .querySelectorAll(".dots__dot")
+    .forEach((dot) => dot.classList.remove("dots__dot--active"));
+
+  // selecting only the dot that we are interested in using the dataset and activating it
+  document
+    .querySelector(`.dots__dot[data-slide="${slide}"]`)
+    .classList.add("dots__dot--active");
+}
+
+// putting every slide side by side in 100% values multiplying that for the index
+goToSlide(0);
+createDots();
+activateDot(0);
+
+// LAZY LOADING IMAGES WITH INTERSECTION OBSERVER
+function loadImage(entries, observer) {
+  const [entry] = entries;
+  if (!entry.isIntersecting) return;
+  // soluzione alessio commentata perche' non ideale in situazioni di connessione lenta
+  // //switch the src attribute with the data in data-src
+  // entry.target.setAttribute("src", entry.target.getAttribute("data-src"));
+  // //remove filter
+  // entry.target.classList.remove("lazy-img");
+
+  // solution 2 remove filter only once the full resolution image has been loaded, that creates an event which we listen
+  entry.target.setAttribute("src", entry.target.getAttribute("data-src"));
+
+  entry.target.addEventListener("load", function () {
+    entry.target.classList.remove("lazy-img");
+  });
+
+  observer.unobserve(entry.target);
+}
+
+const imagesObserver = new IntersectionObserver(loadImage, {
+  root: null,
+  threshold: 1,
+  //start loading images a bit earlier than actual intersection to save time
+  rootMargin: "200px",
+});
+
+lazyImages.forEach(function (image) {
+  imagesObserver.observe(image);
+});
+
+// SECTION REVEAL WITH INTERSECTION OBSERVER
+function revealSection(entries, observer) {
+  // The list of entries received by the callback includes one entry for each target which reported a change in its intersection status. Check the value of the isIntersecting property to see if the entry represents an element that currently intersects with the root.
+  const [entry] = entries;
+  //guard clause logic condition makes sure the first entry doesn't remove the first section class
+  if (!entry.isIntersecting) return;
+  entry.target.classList.remove("section--hidden");
+  // at every passage where the section gets 'activated' we make sure to unobserve it so that we don't keep the observer running without any use
+  observer.unobserve(entry.target);
+}
+
+const sectionObserver = new IntersectionObserver(revealSection, {
+  //The element that is used as the viewport for checking visibility of the target. Must be the ancestor of the target. Defaults to the browser viewport if not specified or if null.
+  root: null,
+  threshold: 0.15,
+});
+// we use a node list of every section because we can use the same observer to observe all of them
+sections.forEach(function (section) {
+  sectionObserver.observe(section);
+  section.classList.add("section--hidden");
 });
 
 //TABBED COMPONENT
@@ -240,3 +380,27 @@ btnScroll.addEventListener("click", function (e) {
 
 // // siblings = going sideways
 // // previouselementsibling nextelementsibling
+
+// lecture 202 DOM lyfecycle events
+
+// dom content loaded
+// document.addEventListener("DOMContentLoaded", function (e) {
+//   console.log(e);
+// });
+
+// // complete website loaded
+
+// document.addEventListener("load", function (e) {
+//   console.log(e);
+// });
+
+// // immediately before leaving
+// // doesn't really work
+// window.addEventListener("beforeunload", function (e) {
+//   //in some browser
+//   e.preventDefault();
+//   console.log(e);
+//   e.returnValue = "";
+// });
+
+//
